@@ -50,6 +50,13 @@
 
   ._z-panel {
     margin: 10px 0;
+
+    &.-bottom {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 0;
+    }
   }
 
   ._input {
@@ -108,6 +115,24 @@
   ._error {
     color: #f06354;
   }
+
+  // SETTINGS BLOCK
+
+  ._settings {
+    display: none;
+    position: absolute;
+    padding: 0 10px;
+    top: 50px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #34495e;
+
+    &.-shown {
+      display: block;
+    }
+  }
+
   // END BODY
   // --------------------------
 }

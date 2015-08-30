@@ -1,7 +1,89 @@
+// ZCalc constructor
+function ZCalc(conf) {
+
+    // проверка ввода
+    function checkInput(value) {
+        return (/^[\d]+$/).test(value);
+    }
+
+    // необходимые вычисления
+    // возвращает массив результатов
+    // первый элемент массива это исходноечисло
+    this.calculate = function (num) {
+
+        if (!checkInput(num)) {
+            throw new Error("ошибка ввода");
+        }
+
+        console.log("after error");
+
+        var tempNum = 0,
+            results = [],
+            iterationLimit = 100,
+            currentIteration = 0;
+
+        results.push(num);
+
+        while (num > 9 && currentIteration <= iterationLimit) {
+            num = num + "";
+            for (var n = 0; n < num.length; n++) {
+                tempNum = tempNum + parseInt(num.charAt(n));
+            }
+
+            num = tempNum;
+            results.push(num);
+            tempNum = 0;
+            currentIteration++;
+        }
+
+        return results;
+    };
+}
+
+// add some additional functionality to HTMLElement
+
+HTMLElement.prototype.normalizeClassName = function () {
+    this.className = this.className.replace(/\s{2,}/g, " ");
+};
+
+HTMLElement.prototype.addClass = function (value) {
+    if (this.className.indexOf(value) == -1) {
+        this.className = this.className + " " + value;
+        this.normalizeClassName();
+        this.className = this.className.trim();
+    }
+};
+
+HTMLElement.prototype.removeClass = function (value) {
+    if (this.className.indexOf(value) != -1) {
+        this.className = this.className.replace(value, "");
+        this.normalizeClassName();
+        this.className = this.className.trim();
+    }
+};
+
+HTMLElement.prototype.hasClass = function (value) {
+    return this.className.indexOf(value) !== -1;
+};
+
+HTMLElement.prototype.toggleClass = function (value) {
+    if (this.hasClass(value)) {
+        this.removeClass(value);
+    } else {
+        this.addClass(value);
+    }
+};
+
+// all work here
 window.onload = function () {
     var input = document.getElementById("user-input"),
         calcButton = document.getElementById("calc-btn"),
-        resultElem = document.getElementById("result");
+        resultElem = document.getElementById("result"),
+        confLink = document.getElementById("prop"),
+        confBlock = document.getElementById("settings"),
+        confButton = document.getElementById("cong-btn"),
+        selectElem = document.getElementById("select"),
+        calc = new ZCalc();
 
     // CONSTANTS
     var ENTER_KEY = 13;
@@ -10,16 +92,22 @@ window.onload = function () {
     input.focus();
 
     calcButton.onclick = handleClick;
+
     document.onkeydown = function (e) {
         if (e.which == 13) {
             handleClick();
         }
     };
 
-    // проверка ввода
-    function checkInput(value) {
-        return (/^[\d]+$/).test(value);
-    }
+    confLink.onclick = function (e) {
+        e.preventDefault();
+        confBlock.toggleClass("-shown");
+    };
+
+    confButton.onclick = function () {
+        confBlock.removeClass("-shown");
+        alert(selectElem.value);
+    };
 
     // очистка ввода
     function cls() {
@@ -28,31 +116,28 @@ window.onload = function () {
 
     // обработка клика
     function handleClick() {
-        var num = input.value;
-
-        // проверка ввода
-        if (!checkInput(num)) {
+        try {
+            var result = calc.calculate(input.value);
             cls();
-            printError(new Error("ошибка ввода"));
+            printResult(result);
+        } catch (err) {
+            cls();
+            printError(err);
+        } finally {
             input.focus();
-            return;
         }
 
-        var result = calculate(num);
-        cls();
-        printResult(result);
-        input.focus();
     }
 
-// вывод ошибки
+    // вывод ошибки
     function printError(err) {
         resultElem.innerHTML = '<span class="_error">' + err.message + '</span>';
     }
 
-// вывод результата
+    // вывод результата
     (function (){
         this.printResult = function (result) {
-            if (typeof result === "undefined" && result.length == 0) {
+            if (typeof result === "undefined" || result.length == 0) {
                 return;
             }
 
@@ -74,30 +159,4 @@ window.onload = function () {
             result[max-1] + "</span>";
         };
     })();
-
-// необходимые вычисления
-// возвращает массив результатов
-// первый элемент массива это исходноечисло
-    function calculate(num) {
-
-        var tempNum = 0,
-            results = [],
-            iterationLimit = 100,
-            currentIteration = 0;
-        results.push(num);
-
-        while (num > 9 && currentIteration <= iterationLimit) {
-            num = num + "";
-            for (var n = 0; n < num.length; n++) {
-                tempNum = tempNum + parseInt(num.charAt(n));
-            }
-
-            num = tempNum;
-            results.push(num);
-            tempNum = 0;
-            currentIteration++;
-        }
-
-        return results;
-    }
 };
