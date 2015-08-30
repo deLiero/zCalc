@@ -8,14 +8,12 @@ function ZCalc(conf) {
 
     // необходимые вычисления
     // возвращает массив результатов
-    // первый элемент массива это исходноечисло
+    // первый элемент массива это исходное число
     this.calculate = function (num) {
 
         if (!checkInput(num)) {
             throw new Error("ошибка ввода");
         }
-
-        console.log("after error");
 
         var tempNum = 0,
             results = [],
@@ -83,13 +81,118 @@ window.onload = function () {
         confBlock = document.getElementById("settings"),
         confButton = document.getElementById("cong-btn"),
         selectElem = document.getElementById("select"),
+        autoclearElement = document.getElementById("autoclear"),
         calc = new ZCalc();
 
     // CONSTANTS
     var ENTER_KEY = 13;
 
-    // перевести фокус на поле ввода
-    input.focus();
+    var DEFAULT_CONFIG = {
+        "cls": true,
+        "res_count": 2
+    };
+
+    var cur_config = {};
+
+    //
+    // MAIN BODY BLOCK
+    //
+
+    // очистка ввода
+    function cls() {
+        input.value = "";
+    }
+
+    // вывод ошибки
+    function printError(err) {
+        resultElem.innerHTML = '<span class="_error">' + err.message + '</span>';
+    }
+
+    // вывод результата
+    function printResult(result) {
+        if (typeof result === "undefined" || result.length == 0) {
+            return;
+        }
+
+        var max = result.length;
+
+        if (max == 1) {
+            resultElem.innerHTML = result[0];
+            return;
+        }
+
+        if (max == 2) {
+            resultElem.innerHTML = result[1];
+            return;
+        }
+
+        if (cur_config["res_count"] == 1) {
+            resultElem.innerHTML = '</span><span class="_big">' +
+            result[max-1] + "</span>";
+            return;
+        }
+
+        resultElem.innerHTML = '<span class="_small">' +
+        result[max-2] +
+        '</span><span class="_big">' +
+        result[max-1] + "</span>";
+    }
+
+    // обработка клика
+    function handleClick() {
+        try {
+            var result = calc.calculate(input.value);
+            printResult(result);
+        } catch (err) {
+            printError(err);
+        } finally {
+            if (cur_config["cls"]) {
+                cls();
+            }
+            input.focus();
+        }
+    }
+
+    //
+    // CONFIGURATION BLOCK
+    //
+
+    // загрузка конфигурации
+    function loadConfiguration() {
+        var conf = localStorage.getItem("conf");
+
+        if(conf) {
+            conf = JSON.parse(conf);
+            cur_config["cls"] = conf["cls"];
+            cur_config["res_count"] = conf["res_count"];
+            console.log("Config load successful");
+        } else {
+            cur_config["cls"] = DEFAULT_CONFIG["cls"];
+            cur_config["res_count"] = DEFAULT_CONFIG["res_count"];
+            console.log("Config set to default");
+        }
+    }
+
+    // настроить блок с настройками согласно текущей конфигурации
+    function setUpConfigurationBlock() {
+        autoclearElement.checked = cur_config["cls"];
+        selectElem.value = cur_config["res_count"];
+    }
+
+    // сохранить текущую конфигурацию
+    function saveConfiguration() {
+        var conf = {};
+        conf["cls"] = autoclearElement.checked;
+        conf["res_count"] = selectElem.value;
+
+        cur_config = conf;
+        localStorage.setItem("conf", JSON.stringify(conf));
+        console.log("Config save successful");
+    }
+
+    //
+    // EVENT HANDLERS
+    //
 
     calcButton.onclick = handleClick;
 
@@ -106,57 +209,14 @@ window.onload = function () {
 
     confButton.onclick = function () {
         confBlock.removeClass("-shown");
-        alert(selectElem.value);
+        saveConfiguration();
     };
 
-    // очистка ввода
-    function cls() {
-        input.value = "";
-    }
+    // загрузить конфигурацию и отобразить в настройках
+    loadConfiguration();
+    setUpConfigurationBlock();
 
-    // обработка клика
-    function handleClick() {
-        try {
-            var result = calc.calculate(input.value);
-            cls();
-            printResult(result);
-        } catch (err) {
-            cls();
-            printError(err);
-        } finally {
-            input.focus();
-        }
+    // перевести фокус на поле ввода
+    input.focus();
 
-    }
-
-    // вывод ошибки
-    function printError(err) {
-        resultElem.innerHTML = '<span class="_error">' + err.message + '</span>';
-    }
-
-    // вывод результата
-    (function (){
-        this.printResult = function (result) {
-            if (typeof result === "undefined" || result.length == 0) {
-                return;
-            }
-
-            var max = result.length;
-
-            if (max == 1) {
-                resultElem.innerHTML = result[0];
-                return;
-            }
-
-            if (max == 2) {
-                resultElem.innerHTML = result[1];
-                return;
-            }
-
-            resultElem.innerHTML = '<span class="_small">' +
-            result[max-2] +
-            '</span><span class="_big">' +
-            result[max-1] + "</span>";
-        };
-    })();
 };

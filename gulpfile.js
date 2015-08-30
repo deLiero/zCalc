@@ -59,7 +59,7 @@ gulp.task('js:build', function () {
     gulp.src(path.src.js)
         .pipe(rigger())
         .pipe(sourcemaps.init())
-        //.pipe(uglify())
+        .pipe(uglify())
         .pipe(sourcemaps.write())
         .pipe(gulp.dest(path.build.js))
         .pipe(reload({stream: true}));
@@ -70,7 +70,7 @@ gulp.task('style:build', function () {
         .pipe(sourcemaps.init())
         .pipe(less())
         .pipe(prefixer())
-        //.pipe(cssmin())
+        .pipe(cssmin())
         .pipe(sourcemaps.write())
         .pipe(gulp.dest(path.build.css))
         .pipe(reload({stream: true}));
