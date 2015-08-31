@@ -89,6 +89,7 @@ window.onload = function () {
     // обработка клика
     function handleClick() {
         try {
+            console.log(input.value);
             var result = calc.calculate(input.value);
             printResult(result);
         } catch (err) {
@@ -105,8 +106,9 @@ window.onload = function () {
 
     calcButton.onclick = handleClick;
 
-    document.onkeydown = function (e) {
+    input.onkeydown = function (e) {
         if (e.which == 13) {
+            e.preventDefault(); // IE9 prevent add \n to input
             handleClick();
         }
     };

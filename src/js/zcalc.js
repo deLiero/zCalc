@@ -1,4 +1,5 @@
 // ZCalc constructor
+//TODO баг с нулями, добавить порционый расчет на случай большших чисел
 function ZCalc(conf) {
 
     // проверка ввода
@@ -198,6 +199,7 @@ window.onload = function () {
 
     document.onkeydown = function (e) {
         if (e.which == 13) {
+            e.preventDefault(); // IE9 prevent add \n to input
             handleClick();
         }
     };
