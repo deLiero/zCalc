@@ -1,10 +1,17 @@
 // ZCalc constructor
-//TODO баг с нулями, добавить порционый расчет на случай большших чисел
 function ZCalc() {
 
     // проверка ввода
     function checkInput(value) {
         return (/^[\d]+$/).test(value);
+    }
+
+    function normalize(num) {
+        if ((/^0*$/).test(num)) {
+            return "0";
+        } else {
+            return num.replace(/^0*/,"");
+        }
     }
 
     // необходимые вычисления
@@ -15,6 +22,9 @@ function ZCalc() {
         if (!checkInput(num)) {
             throw new Error("ошибка ввода");
         }
+        console.log("before num=", num);
+        num = normalize(num);
+        console.log(" after num=", num);
 
         var tempNum = 0,
             results = [],
@@ -90,7 +100,6 @@ window.onload = function () {
     // обработка клика
     function handleClick() {
         try {
-            console.log(input.value);
             var result = calc.calculate(input.value);
             printResult(result);
         } catch (err) {

@@ -1,10 +1,17 @@
 // ZCalc constructor
-//TODO баг с нулями, добавить порционый расчет на случай большших чисел
 function ZCalc(conf) {
 
     // проверка ввода
     function checkInput(value) {
         return (/^[\d]+$/).test(value);
+    }
+
+    function normalize(num) {
+        if ((/^0*$/).test(num)) {
+            return "0";
+        } else {
+            return num.replace(/^0*/,"");
+        }
     }
 
     // необходимые вычисления
@@ -15,6 +22,10 @@ function ZCalc(conf) {
         if (!checkInput(num)) {
             throw new Error("ошибка ввода");
         }
+
+        console.log("before num=", num);
+        num = normalize(num);
+        console.log(" after num=", num);
 
         var tempNum = 0,
             results = [],
