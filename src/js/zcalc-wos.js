@@ -6,6 +6,7 @@ function ZCalc() {
         return (/^[\d]+$/).test(value);
     }
 
+    // нормализация ввода
     function normalize(num) {
         if ((/^0*$/).test(num)) {
             return "0";
@@ -17,24 +18,27 @@ function ZCalc() {
     // необходимые вычисления
     // возвращает массив результатов
     // первый элемент массива это исходное число
+    // если передать пустышку то вернет [0]
     this.calculate = function (num) {
+
+        if((num + "").length == 0) {
+            return [0];
+        }
 
         if (!checkInput(num)) {
             throw new Error("ошибка ввода");
         }
-        console.log("before num=", num);
+
         num = normalize(num);
-        console.log(" after num=", num);
 
         var tempNum = 0,
-            results = [],
-            iterationLimit = 100,
-            currentIteration = 0;
+            results = [];
 
         results.push(num);
 
-        while (num > 9 && currentIteration <= iterationLimit) {
+        while (num > 9) {
             num = num + "";
+
             for (var n = 0; n < num.length; n++) {
                 tempNum = tempNum + parseInt(num.charAt(n));
             }
@@ -42,7 +46,6 @@ function ZCalc() {
             num = tempNum;
             results.push(num);
             tempNum = 0;
-            currentIteration++;
         }
 
         return results;
@@ -52,12 +55,12 @@ function ZCalc() {
 // all work here
 window.onload = function () {
     var input = document.getElementById("user-input"),
-        calcButton = document.getElementById("calc-btn"),
         resultElem = document.getElementById("result"),
         calc = new ZCalc();
 
     // CONSTANTS
-    var ENTER_KEY = 13;
+    var ENTER_KEY = 13,
+        SPACE_KEY = 32;
 
     //
     // MAIN BODY BLOCK
@@ -87,25 +90,33 @@ window.onload = function () {
         }
 
         if (max == 2) {
-            resultElem.innerHTML = result[1];
+            resultElem.innerHTML = result[max-1];
             return;
         }
 
-        resultElem.innerHTML = '<span class="_small">' +
+        if (max == 3) {
+            resultElem.innerHTML = '<span class="_small">' +
+            result[max-2] +
+            '</span><span class="_big">' +
+            result[max-1] + "</span>";
+            return;
+        }
+
+        resultElem.innerHTML = '<span class="_small">' + result[max-3] +
+            '</span>' + '<span class="_small">' +
             result[max-2] +
             '</span><span class="_big">' +
             result[max-1] + "</span>";
     }
 
     // обработка клика
-    function handleClick() {
+    function calculate() {
         try {
             var result = calc.calculate(input.value);
             printResult(result);
         } catch (err) {
             printError(err);
         } finally {
-            cls();
             input.focus();
         }
     }
@@ -114,12 +125,27 @@ window.onload = function () {
     // EVENT HANDLERS
     //
 
-    calcButton.onclick = handleClick;
+    //при фокуcе окна выделить текст инпута
+    window.onfocus = function () {
+        input.select();
+        input.focus();
+    };
 
+    // после ввода вычислить изменения
+    input.oninput = function () {
+        calculate();
+    };
+
+    // перед вводом проверить нажатую кнопку
     input.onkeydown = function (e) {
-        if (e.which == 13) {
+        if (e.which == ENTER_KEY) {
             e.preventDefault(); // IE9 prevent add \n to input
-            handleClick();
+            calculate();
+        }
+
+        // защита от пробела
+        if (e.which == SPACE_KEY) {
+            e.preventDefault();
         }
     };
 

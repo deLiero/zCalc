@@ -1,34 +1,12 @@
 .zcalc_ {
-  background-color: #34495e;
-  color: #fff;
-  margin: 0 auto;
+  background-color: #fff;
+  border: 1px solid #d0d0d0;
+  color: #333;
+  margin: 5px auto;
   position: relative;
   width: 320px;
 
   // TOP
-
-  ._z-top {
-    background-color: #2c3e50;
-    padding: 0 10px;
-    text-align: right;
-
-    &.-left {
-      text-align: left;
-    }
-  }
-
-  ._logo {
-    display: inline-block;
-    float: left;
-    font-weight: bold;
-    font-size: 1.5em;
-    height: 50px;
-    line-height: 50px;
-
-    &.-alone {
-      float: none;
-    }
-  }
 
   ._z-link {
     color: #fff;
@@ -51,7 +29,7 @@
   // BODY
 
   ._z-body {
-    padding: 10px;
+    padding: 15px 15px 0 15px;
   }
 
   //
@@ -72,19 +50,17 @@
   }
 
   ._input {
-    border: 1px solid #2c3e50;
-    border-radius: 4px;
+    border: 1px solid #d0d0d0;
     color: #333;
     margin: 0;
-    padding: 10px 2%;
+    padding: 5px 2%;
     text-align: right;
+    transition: border .2s ease-out;
     width: 96%;
 
     &:focus {
-      border: 1px solid #2980b9;
-      box-shadow: 0 0 10px #3a9bdc;
+      border: 1px solid #a0a0a0;
       outline: none;
-      transition: box-shadow .2s ease-out;
     }
   } // end _input
 
@@ -117,6 +93,7 @@
 
   ._small {
     font-size: 0.7em;
+    margin-left: 10px;
   }
 
   ._big {
@@ -150,5 +127,35 @@
   }
 
   // END BODY
+  // --------------------------
+
+  // BOTTOM
+
+  ._z-bottom {
+    padding: 5px 15px;
+    text-align: center;
+    font-size: 0.7em;
+
+    span {
+      display: inline-block;
+      font-size: 1em;
+      font-weight: bold;
+      padding-right: 5px;
+    }
+
+    a {
+      color: #3a9bdc;
+
+      &:hover {
+        color: #2980b9;
+      }
+
+      &:visited {
+        color: #3a9bdc;
+      }
+    }
+  }
+
+  // END BOTTOM
   // --------------------------
 }
