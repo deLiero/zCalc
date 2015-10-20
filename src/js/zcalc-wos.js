@@ -55,6 +55,7 @@ function ZCalc() {
 // all work here
 window.onload = function () {
     var input = document.getElementById("user-input"),
+        shadowInput = document.getElementById("shadow-input")
         resultElem = document.getElementById("result"),
         calc = new ZCalc();
 
@@ -125,10 +126,15 @@ window.onload = function () {
     // EVENT HANDLERS
     //
 
+    window.onblur = function () {
+        console.log("blur");
+        input.blur();
+    };
+
     //при фокуcе окна выделить текст инпута
     window.onfocus = function () {
         input.select();
-        input.focus();
+        //input.focus();
     };
 
     // после ввода вычислить изменения
