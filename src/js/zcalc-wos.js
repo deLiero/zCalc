@@ -127,14 +127,12 @@ window.onload = function () {
     //
 
     window.onblur = function () {
-        console.log("blur");
         input.blur();
     };
 
     //при фокуcе окна выделить текст инпута
     window.onfocus = function () {
         input.select();
-        //input.focus();
     };
 
     // после ввода вычислить изменения
