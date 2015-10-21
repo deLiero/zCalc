@@ -8,11 +8,7 @@ function ZCalc() {
 
     // нормализация ввода
     function normalize(num) {
-        if ((/^0*$/).test(num)) {
-            return "0";
-        } else {
-            return num.replace(/^0*/,"");
-        }
+        return num.replace(/[^1-9]/g, "");
     }
 
     // необходимые вычисления
@@ -21,15 +17,13 @@ function ZCalc() {
     // если передать пустышку то вернет [0]
     this.calculate = function (num) {
 
+        // нормализуем введенные данные
+        num = normalize(num);
+
+        // если пустышка, то вернуть [0]
         if((num + "").length == 0) {
             return [0];
         }
-
-        if (!checkInput(num)) {
-            throw new Error("ошибка ввода");
-        }
-
-        num = normalize(num);
 
         var tempNum = 0,
             results = [];
@@ -54,30 +48,53 @@ function ZCalc() {
 
 // all work here
 window.onload = function () {
-    var input = document.getElementById("user-input"),
-        shadowInput = document.getElementById("shadow-input")
-        resultElem = document.getElementById("result"),
+    var input = document.getElementById("user-input"), // поле ввода
+        resultElem = document.getElementById("result"), // вывод результата
+        logContainerElem = document.getElementById("log-container"), // контейнер логов
         calc = new ZCalc();
 
     // CONSTANTS
-    var ENTER_KEY = 13,
-        SPACE_KEY = 32;
+    var ENTER_KEY = 13;
 
     //
     // MAIN BODY BLOCK
     //
 
-    // очистка ввода
-    function cls() {
-        input.value = "";
+    // обработка вычисления
+    function calculate(before, value) {
+        try {
+            var result = calc.calculate(value); // получить результаты
+            var printedResultArray = printResult(result); // вывести результаты
+            log(before, input.value, printedResultArray); // отобразить лог
+        } catch (err) {
+            printError(err);
+        } finally {
+            input.focus();
+        }
+    }
+
+    // Логирование вычислений
+    function log(before, after, result) {
+        var _result = "";
+        for (var i = 0; i < result.length; i++) {
+            if (i == 0) {
+                _result = _result + result[i];
+            } else {
+                _result = _result + " " + result[i];
+            }
+        }
+        logContainerElem.innerHTML = "<div class='log'><div><b>input: </b>" + before + "</div>" +
+        "<div><b>normalized: </b>" + after + "</div>" +
+        "<div><b>output: </b>" + _result + "</div></div>";
     }
 
     // вывод ошибки
     function printError(err) {
-        resultElem.innerHTML = '<span class="_error">' + err.message + '</span>';
+        logContainerElem.innerHTML = "<div class='log'><div><b>error: </b>" + err.message + "</div></div>";
     }
 
     // вывод результата
+    // возвращает массив с выведеными результати
     function printResult(result) {
         if (typeof result === "undefined" || result.length == 0) {
             return;
@@ -87,12 +104,12 @@ window.onload = function () {
 
         if (max == 1) {
             resultElem.innerHTML = result[0];
-            return;
+            return [result[0]];
         }
 
         if (max == 2) {
             resultElem.innerHTML = result[max-1];
-            return;
+            return[result[max-1]];
         }
 
         if (max == 3) {
@@ -100,7 +117,7 @@ window.onload = function () {
             result[max-2] +
             '</span><span class="_big">' +
             result[max-1] + "</span>";
-            return;
+            return [result[max-2], result[max-1]];
         }
 
         resultElem.innerHTML = '<span class="_small">' + result[max-3] +
@@ -108,18 +125,7 @@ window.onload = function () {
             result[max-2] +
             '</span><span class="_big">' +
             result[max-1] + "</span>";
-    }
-
-    // обработка клика
-    function calculate() {
-        try {
-            var result = calc.calculate(input.value);
-            printResult(result);
-        } catch (err) {
-            printError(err);
-        } finally {
-            input.focus();
-        }
+        return [result[max-3], result[max-2], result[max-1]];
     }
 
     //
@@ -137,7 +143,9 @@ window.onload = function () {
 
     // после ввода вычислить изменения
     input.oninput = function () {
-        calculate();
+        var before = input.value;
+        input.value = input.value.replace(/[^1-9]/g,"");
+        calculate(before, input.value);
     };
 
     // перед вводом проверить нажатую кнопку
@@ -145,11 +153,6 @@ window.onload = function () {
         if (e.which == ENTER_KEY) {
             e.preventDefault(); // IE9 prevent add \n to input
             calculate();
-        }
-
-        // защита от пробела
-        if (e.which == SPACE_KEY) {
-            e.preventDefault();
         }
     };
 
