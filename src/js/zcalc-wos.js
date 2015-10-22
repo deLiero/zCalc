@@ -51,6 +51,8 @@ window.onload = function () {
     var input = document.getElementById("user-input"), // поле ввода
         resultElem = document.getElementById("result"), // вывод результата
         logContainerElem = document.getElementById("log-container"), // контейнер логов
+        savedLogsElem = document.getElementById("saved-logs"), // контейнер для сохраненных логов
+        curLog = null, // текущий лог
         calc = new ZCalc();
 
     // CONSTANTS
@@ -65,8 +67,9 @@ window.onload = function () {
         try {
             var result = calc.calculate(value); // получить результаты
             var printedResultArray = printResult(result); // вывести результаты
-            log(before, input.value, printedResultArray); // отобразить лог
+            curLog = log(before, input.value, printedResultArray);
         } catch (err) {
+            console.error(err.message);
             printError(err);
         } finally {
             input.focus();
@@ -86,6 +89,11 @@ window.onload = function () {
         logContainerElem.innerHTML = "<div class='log'><div><b>input: </b>" + before + "</div>" +
         "<div><b>normalized: </b>" + after + "</div>" +
         "<div><b>output: </b>" + _result + "</div></div>";
+        return {
+            before: before,
+            after: after,
+            result: result
+        }
     }
 
     // вывод ошибки
@@ -128,6 +136,49 @@ window.onload = function () {
         return [result[max-3], result[max-2], result[max-1]];
     }
 
+    // LOGGING
+
+    // удаление лога
+    function removeLog(child) {
+        if (!child) {
+            return;
+        }
+        savedLogsElem.removeChild(child);
+    }
+
+    // сохраняет лог в контейнере
+    function saveLog(htmlLog) {
+        if (!htmlLog) {
+            return false;
+        }
+        savedLogsElem.insertBefore(htmlLog, savedLogsElem.firstChild);
+        return true;
+    }
+
+    // если лог удачно конвертирован в html
+    // вернет сам лог либо null
+    function logToHtmlElement(log) {
+        if (!log) {
+            return null;
+        }
+        var resultToString = "";
+        for (var i = 0; i < log.result.length; i++) {
+            if (i == 0) {
+                resultToString = resultToString + log.result[i];
+            } else {
+                resultToString = resultToString + " " + log.result[i];
+            }
+        }
+        var innerHTML = "<div class='remove-log'>удалить</div>" +
+            "<div><b>input: </b>" + log.before + "</div>" +
+            "<div><b>normalized: </b>" + log.after + "</div>" +
+            "<div><b>output: </b>" + resultToString + "</div>";
+        var div = document.createElement("div");
+        div.className = "log";
+        div.innerHTML = innerHTML;
+        return div;
+    }
+
     //
     // EVENT HANDLERS
     //
@@ -152,7 +203,37 @@ window.onload = function () {
     input.onkeydown = function (e) {
         if (e.which == ENTER_KEY) {
             e.preventDefault(); // IE9 prevent add \n to input
-            calculate();
+            var before = input.value;
+            input.value = input.value.replace(/[^1-9]/g,"");
+            calculate(before, input.value);
+        }
+    };
+
+    // если нажать стрелку вправо, то сохранится текущий лог
+    document.body.onkeydown = function (e) {
+        if (e.which === 39) {
+            var log = logToHtmlElement(curLog);
+            if(log !== null) {
+                curLog = null;
+                var oldLog = logContainerElem.getElementsByClassName("log")[0];
+                oldLog.style.marginLeft = "-100%"; // убрать лог из виду
+                saveLog(log);
+                setTimeout(function () { // через 100ms показать лог с анимацией
+                    log.style.marginLeft = "0";
+                }, 100);
+            }
+        }
+    };
+
+    // обработчик с делегированием
+    // отвечает за удаление сохраненных логов
+    savedLogsElem.onclick = function (e) {
+        var target = e.target;
+        if(target.className === "remove-log") {
+            var parent = target.parentNode;
+            if (parent.className === "log") {
+                removeLog(parent);
+            }
         }
     };
 

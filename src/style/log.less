@@ -1,17 +1,54 @@
+// стили для текущего лога
 .log-container {
-  background-color: #fff;
   margin: 5px auto;
   font-size: .7em;
+  overflow-x: hidden;
   position: relative;
   width: 100%;
 }
 
 .log {
+  background-color: #fff;
   border: 1px solid #d0d0d0;
   padding: 5px;
+  width: 100%;
+  transition: margin 150ms ease-in;
 
   div {
     margin-bottom: 3px;
     word-break: break-all;
+  }
+}
+
+// сохраненные логи
+.right-block {
+  .log {
+    background-color: #fff;
+    border: 1px solid #d0d0d0;
+    margin-bottom: 5px;
+    margin-left: 100%;
+    padding: 5px;
+    position: relative;
+
+    .remove-log {
+      background-color: #fff;
+      color: #888;
+      cursor: pointer;
+      display: none;
+      padding: 2px 5px;
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+
+    &:hover {
+      .remove-log {
+        display: block;
+
+        &:hover {
+          color: #333;
+        }
+      }
+    }
   }
 }
