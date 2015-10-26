@@ -47,12 +47,13 @@ function ZCalc() {
 }
 
 // all work here
-window.onload = function () {
+var calc = (function () {
     var input = document.getElementById("user-input"), // поле ввода
         resultElem = document.getElementById("result"), // вывод результата
         logContainerElem = document.getElementById("log-container"), // контейнер логов
         savedLogsElem = document.getElementById("saved-logs"), // контейнер для сохраненных логов
         curLog = null, // текущий лог
+        deleteAllLogsElem = document.getElementById("delete-all-logs"), // удаляет все логи
         calc = new ZCalc();
 
     // CONSTANTS
@@ -86,7 +87,7 @@ window.onload = function () {
                 _result = _result + " " + result[i];
             }
         }
-        logContainerElem.innerHTML = "<div class='log'><div><b>input: </b>" + before + "</div>" +
+        logContainerElem.innerHTML = "<div class='log'><div class='save-log' onclick='calc.saveAndAnimate()'>сохранить</div><div><b>input: </b>" + before + "</div>" +
         "<div><b>normalized: </b>" + after + "</div>" +
         "<div><b>output: </b>" + _result + "</div></div>";
         return {
@@ -138,12 +139,33 @@ window.onload = function () {
 
     // LOGGING
 
+    function showDeleteAllLogButton() {
+        deleteAllLogsElem.style.display = "block";
+    }
+
+    function hideDeleteAllLogButton() {
+        deleteAllLogsElem.style.display = "none";
+    }
+
+    function isEmpty() {
+        return savedLogsElem.innerHTML.trim() == "";
+    }
+
     // удаление лога
     function removeLog(child) {
         if (!child) {
             return;
         }
         savedLogsElem.removeChild(child);
+        if (isEmpty()) {
+            hideDeleteAllLogButton();
+        }
+    }
+
+    function deleteAllLogs() {
+        savedLogsElem.innerHTML = "";
+        hideDeleteAllLogButton();
+
     }
 
     // сохраняет лог в контейнере
@@ -151,8 +173,30 @@ window.onload = function () {
         if (!htmlLog) {
             return false;
         }
+        console.log(isEmpty());
+        if (isEmpty()) {
+            showDeleteAllLogButton();
+        }
         savedLogsElem.insertBefore(htmlLog, savedLogsElem.firstChild);
         return true;
+    }
+
+    function saveAndAnimate() {
+        var log = logToHtmlElement(curLog);
+        if(log !== null) {
+            curLog = null;
+            var oldLog = logContainerElem.getElementsByClassName("log")[0];
+            oldLog.style.marginLeft = "-120%"; // убрать лог из виду
+            saveLog(log);
+            setTimeout(function () { // через 100ms показать лог с анимацией
+                log.style.marginLeft = "0";
+            }, 100);
+        }
+    }
+
+    function htmlClickSaveAndAnimate() {
+        saveAndAnimate();
+        input.select();
     }
 
     // если лог удачно конвертирован в html
@@ -199,29 +243,19 @@ window.onload = function () {
         calculate(before, input.value);
     };
 
-    // перед вводом проверить нажатую кнопку
+    // при нажатии Enter сохранить лог
     input.onkeydown = function (e) {
         if (e.which == ENTER_KEY) {
             e.preventDefault(); // IE9 prevent add \n to input
-            var before = input.value;
-            input.value = input.value.replace(/[^1-9]/g,"");
-            calculate(before, input.value);
+            saveAndAnimate();
         }
     };
 
-    // если нажать стрелку вправо, то сохранится текущий лог
-    document.body.onkeydown = function (e) {
-        if (e.which === 39) {
-            var log = logToHtmlElement(curLog);
-            if(log !== null) {
-                curLog = null;
-                var oldLog = logContainerElem.getElementsByClassName("log")[0];
-                oldLog.style.marginLeft = "-100%"; // убрать лог из виду
-                saveLog(log);
-                setTimeout(function () { // через 100ms показать лог с анимацией
-                    log.style.marginLeft = "0";
-                }, 100);
-            }
+    // после нажатия выделить текст в input
+    input.onkeyup = function (e) {
+        if (e.which === ENTER_KEY) {
+            //input.focus();
+            input.select();
         }
     };
 
@@ -237,6 +271,13 @@ window.onload = function () {
         }
     };
 
+    // удаление всех логов
+    deleteAllLogsElem.onclick = deleteAllLogs;
+
     // перевести фокус на поле ввода
     input.focus();
-};
+
+    return {
+        saveAndAnimate: htmlClickSaveAndAnimate
+    }
+})();

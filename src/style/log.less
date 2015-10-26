@@ -3,7 +3,7 @@
   margin: 5px auto;
   font-size: .7em;
   overflow-x: hidden;
-  position: relative;
+  padding-bottom: 3px;
   width: 100%;
 }
 
@@ -11,8 +11,32 @@
   background-color: #fff;
   border: 1px solid #d0d0d0;
   padding: 5px;
+  position: relative;
   width: 100%;
   transition: margin 150ms ease-in;
+
+  .addShadow();
+
+  .save-log {
+    background-color: #fff;
+    color: #888;
+    cursor: pointer;
+    display: none;
+    padding: 2px 5px;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+
+  &:hover {
+    .save-log {
+      display: block;
+
+      &:hover {
+        color: #333;
+      }
+    }
+  }
 
   div {
     margin-bottom: 3px;
@@ -29,6 +53,8 @@
     margin-left: 100%;
     padding: 5px;
     position: relative;
+
+    .addShadow();
 
     .remove-log {
       background-color: #fff;

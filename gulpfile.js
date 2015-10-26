@@ -43,7 +43,7 @@ var config = {
         baseDir: "./build"
     },
     host: 'localhost',
-    port: 9000,
+    port: 8080,
     logPrefix: "zCalc",
     online: false
 };
