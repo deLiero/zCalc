@@ -13,7 +13,7 @@
   padding: 5px;
   position: relative;
   width: 100%;
-  transition: margin 150ms ease-in;
+  transition: margin 200ms ease-in;
 
   .addShadow();
 
@@ -46,6 +46,16 @@
 
 // сохраненные логи
 .right-block {
+
+  #saved-logs {
+    transition: margin .2s linear;
+    width: 100%;
+
+    &.move-right {
+      margin-left: 100%;
+    }
+  }
+
   .log {
     background-color: #fff;
     border: 1px solid #d0d0d0;

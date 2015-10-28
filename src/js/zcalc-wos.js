@@ -59,6 +59,27 @@ var calc = (function () {
     // CONSTANTS
     var ENTER_KEY = 13;
 
+    // CHECK TRANSITION EVENT
+    var transitionEventName = (function () {
+        var el = document.createElement('div')//what the hack is bootstrap
+
+        var transEndEventNames = {
+            WebkitTransition : 'webkitTransitionEnd',
+            MozTransition    : 'transitionend',
+            OTransition      : 'oTransitionEnd otransitionend',
+            transition       : 'transitionend'
+        }
+
+        for (var name in transEndEventNames) {
+            if (el.style[name] !== undefined) {
+                return transEndEventNames[name];
+            }
+        }
+
+        return false // explicit for ie8 (  ._.)
+
+    })();
+
     //
     // MAIN BODY BLOCK
     //
@@ -77,6 +98,11 @@ var calc = (function () {
         }
     }
 
+    function clearInputAndResult() {
+        input.value = "";
+        resultElem.innerHTML = "0";
+    }
+
     // Логирование вычислений
     function log(before, after, result) {
         var _result = "";
@@ -88,8 +114,8 @@ var calc = (function () {
             }
         }
         logContainerElem.innerHTML = "<div class='log'><div class='save-log' onclick='calc.saveAndAnimate()'>сохранить</div><div><b>input: </b>" + before + "</div>" +
-        "<div><b>normalized: </b>" + after + "</div>" +
-        "<div><b>output: </b>" + _result + "</div></div>";
+            "<div><b>normalized: </b>" + after + "</div>" +
+            "<div><b>output: </b>" + _result + "</div></div>";
         return {
             before: before,
             after: after,
@@ -156,16 +182,29 @@ var calc = (function () {
         if (!child) {
             return;
         }
-        savedLogsElem.removeChild(child);
-        if (isEmpty()) {
-            hideDeleteAllLogButton();
+
+        // проверка на transitionend событие
+        // если оно существует то удалить с учетом анимации
+        // если нет то просто удалить лог
+        if (transitionEventName) {
+            child.addEventListener("transitionend", function () {
+                savedLogsElem.removeChild(child);
+                if (isEmpty()) {
+                    hideDeleteAllLogButton();
+                }
+            }, false);
+            child.style.marginLeft = "";
+        } else {
+            savedLogsElem.removeChild(child);
+            if (isEmpty()) {
+                hideDeleteAllLogButton();
+            }
         }
     }
 
     function deleteAllLogs() {
         savedLogsElem.innerHTML = "";
         hideDeleteAllLogButton();
-
     }
 
     // сохраняет лог в контейнере
@@ -186,17 +225,18 @@ var calc = (function () {
         if(log !== null) {
             curLog = null;
             var oldLog = logContainerElem.getElementsByClassName("log")[0];
-            oldLog.style.marginLeft = "-120%"; // убрать лог из виду
+            oldLog.style.marginLeft = "-105%"; // убрать лог из виду
             saveLog(log);
-            setTimeout(function () { // через 100ms показать лог с анимацией
+            setTimeout(function () { // функция выполнится после добавления элемента
                 log.style.marginLeft = "0";
-            }, 100);
+            }, 16);
         }
     }
 
     function htmlClickSaveAndAnimate() {
         saveAndAnimate();
-        input.select();
+        clearInputAndResult();
+        input.focus();
     }
 
     // если лог удачно конвертирован в html
@@ -248,16 +288,12 @@ var calc = (function () {
         if (e.which == ENTER_KEY) {
             e.preventDefault(); // IE9 prevent add \n to input
             saveAndAnimate();
+            clearInputAndResult();
+            input.focus();
         }
     };
 
-    // после нажатия выделить текст в input
-    input.onkeyup = function (e) {
-        if (e.which === ENTER_KEY) {
-            //input.focus();
-            input.select();
-        }
-    };
+
 
     // обработчик с делегированием
     // отвечает за удаление сохраненных логов
